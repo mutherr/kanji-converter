@@ -78,6 +78,8 @@ def getPossibleKanji(sentence):
                         possible_forms.append(form[:-1] + "い")
                     elif surface_form.endswith("き") and form.endswith("く"):
                         possible_forms.append(form[:-1] + "き")
+                    elif surface_form.endswith("り") and form.endswith("る"):
+                        possible_forms.append(form[:-1] + "り")
                     elif surface_form.endswith("し") and form.endswith("す"):
                         possible_forms.append(form[:-1] + "し")
                     elif surface_form.endswith("さい"):
@@ -173,6 +175,7 @@ def main():
     # test_sentence = "あしたはさむくなるから、あたたかいふくをきてください"
     # test_sentence = "わたしのしゅみはおんがくをきくことです"
     test_sentence = "あるきながらはなしまんせんか"
+    test_sentence = "きゅうにあめがふりだしたので、かさをもっていなかったわたしはずぶぬれになってしまった。"
 
     possibilities = getPossibleKanji(test_sentence)
     print(f"Possible Kanji for the sentence {test_sentence}: {possibilities}")
