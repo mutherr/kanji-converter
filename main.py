@@ -154,7 +154,7 @@ def main():
 
     model = kenlm.Model('sentences/jp3.arpa')
 
-    print(f'Calculating top sentences for {test_sentence}...')
+    print(f'Calculating top kanji choices for {test_sentence}...')
     top_sentences = top_n_sentences(possibilities, model, N=10, beam_width=10)
     for score, sentence in top_sentences:
         sentence = ''.join(sentence)
