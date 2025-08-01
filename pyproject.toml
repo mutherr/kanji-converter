@@ -5,6 +5,7 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "kenlm>=0.3.0",
     "ruff>=0.12.7",
     "sudachidict-core>=20250515",
     "sudachipy>=0.6.10",
