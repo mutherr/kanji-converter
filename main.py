@@ -3,13 +3,15 @@ import xml.etree.ElementTree as ET
 import kenlm
 import heapq
 
+#todo: clean up this code, it is a mess
+
 tokenizer = Dictionary().create()
 
 JMDICT_PATH = 'dict/JMdict_e.xml'
 tree = ET.parse(JMDICT_PATH)
 root = tree.getroot()
 
-posToCheck = ["普通名詞", "名詞", "形容詞", "形容動詞", "名詞的", "動詞", "形状詞","代名詞"]
+posToCheck = ["普通名詞", "名詞", "形容詞", "形容動詞", "名詞的", "動詞", "形状詞", "代名詞"]
 
 def find_kanji_for_kana(reading):
     results = set()
@@ -142,7 +144,8 @@ def main():
     # test_sentence = "あたしにはなしかけないでください"
     # test_sentence = "あしたはさむくなるから、あたたかいふくをきてください"
     # test_sentence = "わたしのしゅみはおんがくをきくことです"
-    test_sentence = "あるきながらはなしまんせんか"
+    # test_sentence = "あるきながらはなしまんせんか"
+    test_sentence = "これはてすとぶんです"
 
     possibilities = getPossibleKanji(test_sentence)
     print(f"Possible Kanji for the sentence {test_sentence}: {possibilities}")

@@ -1,10 +1,11 @@
 [project]
 name = "kanji-converter"
 version = "0.1.0"
-description = "Add your description here"
+description = "A small application to determine likely kanji readings of a Japanese sentence written entirely in haragana."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
+    "eel>=0.18.2",
     "kenlm>=0.3.0",
     "ruff>=0.12.7",
     "sudachidict-core>=20250515",
