@@ -1,0 +1,11 @@
+[project]
+name = "kanji-converter"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "ruff>=0.12.7",
+    "sudachidict-core>=20250515",
+    "sudachipy>=0.6.10",
+]
