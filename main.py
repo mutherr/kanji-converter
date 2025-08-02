@@ -33,20 +33,16 @@ posToCheck = [
 
 
 def find_kanji_for_kana(reading):
-    print("Finding kanji for reading:", reading)
     results = set()
     results = find_kanji_for_kana_in_kanjidic(hiragana_to_katakana(reading))
-    print("Found kanji in KANJIDIC:", results)
     for entry in root.findall("entry"):
         readings = [
             r.text for r_ele in entry.findall("r_ele") for r in r_ele.findall("reb")
         ]
         if reading in readings:
-            print("Matched entry:", readings)
             kanjis = [
                 k.text for k_ele in entry.findall("k_ele") for k in k_ele.findall("keb")
             ]
-            print("Kanji candidates:", kanjis)
             if kanjis:
                 results.update(kanjis)
     return results
@@ -181,8 +177,6 @@ def addExtraOptions(morphemes, possibilities):
         # でん, と, and う.
         # The hack here is to add the readings for "とう" to "と" and let the う be skipped
         if "と" in p and "う" in possibilities[i + 1] and i + 1 < len(possibilities):
-            print("Adding とう options for と")
-            print(find_kanji_for_kana("とう"))
             possibilities[i] += ["とう"] + list(find_kanji_for_kana("とう"))
             possibilities[i] = list(set(possibilities[i]))
             possibilities[i + 1] += [""]
