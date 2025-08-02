@@ -6,7 +6,7 @@ The sentence is first run through the `sudachipy` parser to split the sequence u
 
 Candidate kanji for each morpheme are taken from the JMDict dictionary by colelcting all entries with the given morpheme as a possible reading.
 
-Importantly, this gives us back the kanji forms in their dictionary for (ex: 言う rather than 言っ as we need to reconstuction the sentence), so basic rule-based reinflection is performed for verbs and い adjectives.
+Importantly, this gives us back the kanji forms in their dictionary for (ex: 言う rather than 言っ as we need to reconstuct the example sentence), so basic rule-based reinflection is performed for verbs and い adjectives.
 
 These possibilities are then formed into a reporesentation of all possible kanji or hiragana forms called a lattice, where the i-th entry stores all the ways the i-th morpheme could be represented. For the example sentence, this is:
 
