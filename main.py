@@ -3,6 +3,8 @@ import xml.etree.ElementTree as ET
 import kenlm
 import heapq
 
+from util.jpUtil import hiragana_to_katakana
+
 # todo: clean up this code, it is a mess
 
 tokenizer = Dictionary().create()
@@ -10,6 +12,10 @@ tokenizer = Dictionary().create()
 JMDICT_PATH = "dict/JMdict_e.xml"
 tree = ET.parse(JMDICT_PATH)
 root = tree.getroot()
+
+KANJIDIC_PATH = "dict/kanjidic2.xml"
+kanjidic_tree = ET.parse(KANJIDIC_PATH)
+kanjidic_root = kanjidic_tree.getroot()
 
 posToCheck = [
     "普通名詞",
@@ -22,24 +28,41 @@ posToCheck = [
     "代名詞",
     "接尾辞",
     "副詞",
+    "助動詞",
 ]
 
 
 def find_kanji_for_kana(reading):
+    print("Finding kanji for reading:", reading)
     results = set()
+    results = find_kanji_for_kana_in_kanjidic(hiragana_to_katakana(reading))
+    print("Found kanji in KANJIDIC:", results)
     for entry in root.findall("entry"):
-        # Readings (r_ele) can be multiple
         readings = [
             r.text for r_ele in entry.findall("r_ele") for r in r_ele.findall("reb")
         ]
         if reading in readings:
-            # Kanji elements (k_ele) - may be multiple, or absent (kana-only)
+            print("Matched entry:", readings)
             kanjis = [
                 k.text for k_ele in entry.findall("k_ele") for k in k_ele.findall("keb")
             ]
+            print("Kanji candidates:", kanjis)
             if kanjis:
                 results.update(kanjis)
+    return results
 
+
+def find_kanji_for_kana_in_kanjidic(reading, reading_types=("ja_on", "ja_kun")):
+    results = set()
+    for char in kanjidic_root.findall("character"):
+        kanji = char.findtext("literal")
+        rm = char.find("reading_meaning")
+        if rm is not None:
+            for group in rm.findall("rmgroup"):
+                for rd in group.findall("reading"):
+                    rtype = rd.attrib.get("r_type")
+                    if rtype in reading_types and rd.text == reading:
+                        results.add(kanji)
     return results
 
 
@@ -47,14 +70,16 @@ def isVerbDictForm(verb):
     return verb.endswith(("う", "く", "す", "つ", "ぬ", "む", "ゆ", "る", "ぐ"))
 
 
-def getPossibleKanji(sentence):
-    morphemes = tokenizer.tokenize(sentence, mode=SplitMode.C)
-
+def getPossibleKanji(morphemes):
     possibilities = []
     for c in morphemes:
         if c.part_of_speech()[0] in posToCheck:
             surface_form = c.surface()
+            print(c.surface(), c.dictionary_form())
             kanji_forms = find_kanji_for_kana(c.dictionary_form())
+
+            if surface_form != c.dictionary_form() and "動詞" not in c.part_of_speech():
+                kanji_forms = kanji_forms.union(find_kanji_for_kana(c.surface()))
 
             possible_forms = []
             for form in kanji_forms:
@@ -139,7 +164,7 @@ def getPossibleKanji(sentence):
     return possibilities
 
 
-def addExtraOptions(possibilities):
+def addExtraOptions(morphemes, possibilities):
     """
     Add extra options to the possibilities list.
     This can be used to smooth over issues with the parser.
@@ -152,7 +177,19 @@ def addExtraOptions(possibilities):
         if "お" in p and "お" in p[i - 1] and i > 0:
             possibilities[i] += ["大"]
             possibilities[i - 1] += [""]
-
+        # similarly, the parser sometimes struggles with words like 伝統 (でんとう), splitting it into
+        # でん, と, and う.
+        # The hack here is to add the readings for "とう" to "と" and let the う be skipped
+        if "と" in p and "う" in possibilities[i + 1] and i + 1 < len(possibilities):
+            print("Adding とう options for と")
+            print(find_kanji_for_kana("とう"))
+            possibilities[i] += ["とう"] + list(find_kanji_for_kana("とう"))
+            possibilities[i] = list(set(possibilities[i]))
+            possibilities[i + 1] += [""]
+        if "ど" in p and "う" in possibilities[i + 1] and i + 1 < len(possibilities):
+            possibilities[i] += ["どう"] + list(find_kanji_for_kana("どう"))
+            possibilities[i] = list(set(possibilities[i]))
+            possibilities[i + 1] += [""]
     return possibilities
 
 
@@ -200,12 +237,15 @@ def main():
     # test_sentence = "きゅうにあめがふりだしたので、かさをもっていなかったわたしはずぶぬれになってしまった。"
     # test_sentence = "どうぞよろしくおねがいいたします。"
     test_sentence = "おおそうじがにほんてきなでんとうです。"
-    test_sentence = "でんとうです。"
-    test_sentence = "だいがくせいのときに、れきしにせんこうしました。"
-    test_sentence = "すいせいをみた！"
+    test_sentence = "ことしのなつはとてもあつい"
+    # test_sentence = "だいがくせいのときに、れきしにせんこうしました。"
+    # test_sentence = "すいせいをみた！"
 
-    possibilities = getPossibleKanji(test_sentence)
-    possibilities = addExtraOptions(possibilities)
+    morphemes = tokenizer.tokenize(test_sentence, mode=SplitMode.C)
+    print(f"Morphemes for the sentence {test_sentence}: {morphemes}")
+    possibilities = getPossibleKanji(morphemes)
+    print(f"Possible Kanji for the sentence before augmentation: {possibilities}")
+    possibilities = addExtraOptions(morphemes, possibilities)
     print(f"Possible Kanji for the sentence {test_sentence}: {possibilities}")
 
     total_possibilities = 1
