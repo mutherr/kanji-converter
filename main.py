@@ -21,6 +21,7 @@ posToCheck = [
     "形状詞",
     "代名詞",
     "接尾辞",
+    "副詞",
 ]
 
 
@@ -138,6 +139,23 @@ def getPossibleKanji(sentence):
     return possibilities
 
 
+def addExtraOptions(possibilities):
+    """
+    Add extra options to the possibilities list.
+    This can be used to smooth over issues with the parser.
+    """
+    for i, p in enumerate(possibilities):
+        # if we find two adjavent "お" options, we can add an extra "大" option to the second and
+        # let the first be skipped
+        # this is a hack to deal with the fact that the parser does not handle "おお" correctly
+        # in some cases, like "おおそうじ"
+        if "お" in p and "お" in p[i - 1] and i > 0:
+            possibilities[i] += ["大"]
+            possibilities[i - 1] += [""]
+
+    return possibilities
+
+
 def top_n_sentences(token_options, model, N=5, beam_width=10):
     """
     token_options: list of list of str, e.g. [["亡い", "ない"], ["か"], ...]
@@ -182,8 +200,12 @@ def main():
     # test_sentence = "きゅうにあめがふりだしたので、かさをもっていなかったわたしはずぶぬれになってしまった。"
     # test_sentence = "どうぞよろしくおねがいいたします。"
     test_sentence = "おおそうじがにほんてきなでんとうです。"
+    test_sentence = "でんとうです。"
+    test_sentence = "だいがくせいのときに、れきしにせんこうしました。"
+    test_sentence = "すいせいをみた！"
 
     possibilities = getPossibleKanji(test_sentence)
+    possibilities = addExtraOptions(possibilities)
     print(f"Possible Kanji for the sentence {test_sentence}: {possibilities}")
 
     total_possibilities = 1
