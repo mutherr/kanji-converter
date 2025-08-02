@@ -34,7 +34,7 @@ posToCheck = [
 
 def find_kanji_for_kana(reading):
     results = set()
-    results = find_kanji_for_kana_in_kanjidic(hiragana_to_katakana(reading))
+    # results = find_kanji_for_kana_in_kanjidic(hiragana_to_katakana(reading))
     for entry in root.findall("entry"):
         readings = [
             r.text for r_ele in entry.findall("r_ele") for r in r_ele.findall("reb")
@@ -234,6 +234,7 @@ def main():
     test_sentence = "ことしのなつはとてもあつい"
     # test_sentence = "だいがくせいのときに、れきしにせんこうしました。"
     # test_sentence = "すいせいをみた！"
+    test_sentence = "すいせいをみた！すごい！"
 
     morphemes = tokenizer.tokenize(test_sentence, mode=SplitMode.C)
     print(f"Morphemes for the sentence {test_sentence}: {morphemes}")
