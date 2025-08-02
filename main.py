@@ -234,7 +234,7 @@ def main():
     test_sentence = "ことしのなつはとてもあつい"
     # test_sentence = "だいがくせいのときに、れきしにせんこうしました。"
     # test_sentence = "すいせいをみた！"
-    test_sentence = "すいせいをみた！すごい！"
+    test_sentence = "そこにいくなら、はやくいったほうがいいよ"
 
     morphemes = tokenizer.tokenize(test_sentence, mode=SplitMode.C)
     print(f"Morphemes for the sentence {test_sentence}: {morphemes}")
