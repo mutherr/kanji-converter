@@ -20,6 +20,7 @@ posToCheck = [
     "動詞",
     "形状詞",
     "代名詞",
+    "接尾辞",
 ]
 
 
@@ -179,7 +180,8 @@ def main():
     # test_sentence = "あるきながらはなしまんせんか"
     # test_sentence = "あめがふっているので、かさをもっていきます"
     # test_sentence = "きゅうにあめがふりだしたので、かさをもっていなかったわたしはずぶぬれになってしまった。"
-    test_sentence = "どうぞよろしくおねがいいたします。"
+    # test_sentence = "どうぞよろしくおねがいいたします。"
+    test_sentence = "おおそうじがにほんてきなでんとうです。"
 
     possibilities = getPossibleKanji(test_sentence)
     print(f"Possible Kanji for the sentence {test_sentence}: {possibilities}")
