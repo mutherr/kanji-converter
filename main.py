@@ -94,6 +94,8 @@ def getPossibleKanji(sentence):
                         possible_forms.append("し")
                     elif surface_form.endswith("け") and form.endswith("る"):
                         possible_forms.append(form[:-1])
+                    elif surface_form.endswith("い") and form.endswith("う"):
+                        possible_forms.append(form[:-1] + "い")
                     else:
                         possible_forms.append(form[: len(surface_form)])
                 # い-Adjectives
@@ -174,8 +176,10 @@ def main():
     # test_sentence = "あたしにはなしかけないでください"
     # test_sentence = "あしたはさむくなるから、あたたかいふくをきてください"
     # test_sentence = "わたしのしゅみはおんがくをきくことです"
-    test_sentence = "あるきながらはなしまんせんか"
-    test_sentence = "きゅうにあめがふりだしたので、かさをもっていなかったわたしはずぶぬれになってしまった。"
+    # test_sentence = "あるきながらはなしまんせんか"
+    # test_sentence = "あめがふっているので、かさをもっていきます"
+    # test_sentence = "きゅうにあめがふりだしたので、かさをもっていなかったわたしはずぶぬれになってしまった。"
+    test_sentence = "どうぞよろしくおねがいいたします。"
 
     possibilities = getPossibleKanji(test_sentence)
     print(f"Possible Kanji for the sentence {test_sentence}: {possibilities}")
