@@ -201,10 +201,9 @@ def top_n_sentences(token_options, model, N=5, beam_width=10):
                 # KenLM: score one sentence so far
                 sentence = " ".join(new_seq)
                 score = model.score(sentence, bos=True, eos=True)
-                new_beam.append((-score, new_seq))  # negative for min-heap
+                new_beam.append((-score, new_seq))
         # Keep top beam_width
         beam = heapq.nsmallest(beam_width, new_beam)
-    # At end, return top N results, sorted best score first
     return [(-neg_score, seq) for neg_score, seq in heapq.nsmallest(N, beam)]
 
 
