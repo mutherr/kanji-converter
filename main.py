@@ -162,7 +162,7 @@ def addExtraOptions(morphemes, possibilities):
     This can be used to smooth over issues with the parser.
     """
     for i, p in enumerate(possibilities):
-        # if we find two adjavent "お" options, we can add an extra "大" option to the second and
+        # if we find two adjacent "お" options, we can add an extra "大" option to the second and
         # let the first be skipped
         # this is a hack to deal with the fact that the parser does not handle "おお" correctly
         # in some cases, like "おおそうじ"
