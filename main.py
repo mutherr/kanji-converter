@@ -97,6 +97,8 @@ def getPossibleKanji(morphemes):
                         possible_forms.append(form[:-1] + "い")
                     elif surface_form.endswith("き") and form.endswith("く"):
                         possible_forms.append(form[:-1] + "き")
+                    elif surface_form.endswith("か") and form.endswith("く"):
+                        possible_forms.append(form[:-1] + "か")
                     elif surface_form.endswith("り") and form.endswith("る"):
                         possible_forms.append(form[:-1] + "り")
                     elif surface_form.endswith("し") and form.endswith("す"):
@@ -125,6 +127,8 @@ def getPossibleKanji(morphemes):
                         possible_forms.append(form)
                     elif surface_form.endswith("く"):
                         possible_forms.append(form[:-1] + "く")
+                    elif surface_form.endswith("し") and form.endswith("い"):
+                        possible_forms.append(form[:-1])
                     else:
                         print(
                             "Unsure how to reinflect surface form ",
@@ -225,13 +229,14 @@ def main():
     # test_sentence = "あめがふっているので、かさをもっていきます"
     # test_sentence = "きゅうにあめがふりだしたので、かさをもっていなかったわたしはずぶぬれになってしまった。"
     # test_sentence = "どうぞよろしくおねがいいたします。"
-    # test_sentence = "おおそうじがにほんてきなでんとうです。"
+    test_sentence = "おおそうじがにほんてきなでんとうです。"
     # test_sentence = "ことしのなつはとてもあつい"
     # test_sentence = "えきのまえにあるおみせで、あたらしいふくをかいました。"
     # test_sentence = "だいがくせいのときに、れきしにせんこうしました。"
     # test_sentence = "すいせいをみた！"
     # test_sentence = "そこにいくなら、はやくいったほうがいいよ"
     # test_sentence = "いいにくいことをいうのはむずかしい"
+    test_sentence = "きびしすぎると、かんがえがうまくいかないこともある"
 
     morphemes = tokenizer.tokenize(test_sentence, mode=SplitMode.C)
     print(f"Morphemes for the sentence {test_sentence}: {morphemes}")
