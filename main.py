@@ -129,6 +129,8 @@ def getPossibleKanji(morphemes):
                         possible_forms.append(form[:-1] + "く")
                     elif surface_form.endswith("し") and form.endswith("い"):
                         possible_forms.append(form[:-1])
+                    elif surface_form.endswith("かっ") and form.endswith("い"):
+                        possible_forms.append(form[:-1] + "かっ")
                     else:
                         print(
                             "Unsure how to reinflect surface form ",
@@ -237,6 +239,7 @@ def main():
     # test_sentence = "そこにいくなら、はやくいったほうがいいよ"
     # test_sentence = "いいにくいことをいうのはむずかしい"
     test_sentence = "きびしすぎると、かんがえがうまくいかないこともある"
+    test_sentence = "おまつりはたのしかったです"
 
     morphemes = tokenizer.tokenize(test_sentence, mode=SplitMode.C)
     print(f"Morphemes for the sentence {test_sentence}: {morphemes}")
