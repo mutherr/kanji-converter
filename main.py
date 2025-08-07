@@ -77,7 +77,7 @@ def getPossibleKanji(morphemes):
             if surface_form != c.dictionary_form():
                 kanji_forms = kanji_forms.union(find_kanji_for_kana(c.surface()))
 
-            possible_forms = []
+            possible_forms = [surface_form]
             for form in kanji_forms:
                 # perform basic reinflection for verbs. I am so glad the verbs
                 # in this language are regular
@@ -146,11 +146,11 @@ def getPossibleKanji(morphemes):
                     possible_forms.append(form)
 
             possible_forms = sorted(list(set(possible_forms)))
-            if c.surface() not in possible_forms:
-                possible_forms.append(c.surface())
             print("Inflected forms:", possible_forms)
+            print(len(possible_forms), "possible forms for", c.surface())
+            
 
-            print("Surface form:", c.surface(), c.dictionary_form())
+            print("Surface form:", surface_form, c.dictionary_form())
             print("Possible forms:", possible_forms)
             print("Part of speech:", c.part_of_speech())
             possibilities.append(possible_forms)
@@ -180,6 +180,10 @@ def addExtraOptions(morphemes, possibilities):
         # The hack here is to add the readings for "とう" to "と" and let the う be skipped
         if "と" in p and "う" in possibilities[i + 1] and i + 1 < len(possibilities):
             possibilities[i] += ["とう"] + list(find_kanji_for_kana("とう"))
+            possibilities[i] = list(set(possibilities[i]))
+            possibilities[i + 1] += [""]
+        if "ど" in p and "う" in possibilities[i + 1] and i + 1 < len(possibilities):
+            possibilities[i] += ["どう"] + list(find_kanji_for_kana("どう"))
             possibilities[i] = list(set(possibilities[i]))
             possibilities[i + 1] += [""]
         if "ど" in p and "う" in possibilities[i + 1] and i + 1 < len(possibilities):
@@ -240,6 +244,7 @@ def main():
     # test_sentence = "いいにくいことをいうのはむずかしい"
     test_sentence = "きびしすぎると、かんがえがうまくいかないこともある"
     test_sentence = "おまつりはたのしかったです"
+    test_sentence = "はいってもいいんじゃないの？"
 
     morphemes = tokenizer.tokenize(test_sentence, mode=SplitMode.C)
     print(f"Morphemes for the sentence {test_sentence}: {morphemes}")
