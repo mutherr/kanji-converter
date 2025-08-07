@@ -2,7 +2,6 @@ from sudachipy import Dictionary, SplitMode
 import kenlm
 import heapq
 
-from util.jpUtil import hiragana_to_katakana
 from util.kanji import find_kanji_for_kana
 
 # todo: clean up this code, it is a mess
