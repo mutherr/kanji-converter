@@ -1,4 +1,5 @@
 import xml.etree.ElementTree as ET
+from util.jpUtil import hiragana_to_katakana
 
 
 JMDICT_PATH = "dict/JMdict_e.xml"
