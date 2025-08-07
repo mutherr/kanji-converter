@@ -192,7 +192,8 @@ def addExtraOptions(morphemes, possibilities):
         # this is a hack to deal with the fact that the parser does not handle "にゅう" correctly
         # in some cases, like "入力" (にゅうりょく) or "入院" (にゅういん)
         if "に" in p and "ゅ" in possibilities[i + 1] and "う" in possibilities[i + 2] and i + 2 < len(possibilities):
-            possibilities[i] += ["にゅう"] + list(find_kanji_for_kana("にゅう"))
+            print("Found にゅう hack")
+            possibilities[i] += ["にゅう"] + list(find_kanji_for_kana("にゅう")+["入"])
             possibilities[i] = list(set(possibilities[i]))
             possibilities[i + 1] += [""]
             possibilities[i + 2] += [""]
@@ -201,6 +202,13 @@ def addExtraOptions(morphemes, possibilities):
             possibilities[i] = list(set(possibilities[i]))
             possibilities[i + 1] += [""]
             possibilities[i + 2] += [""]
+        #the real fix for this is to find a better kanji dictionary. JMdict is missing a lot of onyomi,
+        # and kanjidic seems to overwhlem the lm and make it produce unexpected results
+        # this is a hack to deal with the fact that the parser does not handle "にゅう" correctly
+        # in some cases, like "入力" (にゅうりょく) or "入院" (にゅういん)
+        if "にゅう" in p:
+            possibilities[i] += list(find_kanji_for_kana("にゅう"))+["入"]
+            possibilities[i] = list(set(possibilities[i]))
     return possibilities
 
 
