@@ -187,8 +187,17 @@ def addExtraOptions(morphemes, possibilities):
             possibilities[i] += ["どう"] + list(find_kanji_for_kana("どう"))
             possibilities[i] = list(set(possibilities[i]))
             possibilities[i + 1] += [""]
+        # multi-character syllables like "にゅう" are sometimes split into "に", "ゅ", and "う"
+        # we can fix this by adding "にゅう" to the first syllable and letting the next two be skipped
+        # this is a hack to deal with the fact that the parser does not handle "にゅう" correctly
+        # in some cases, like "入力" (にゅうりょく) or "入院" (にゅういん)
         if "に" in p and "ゅ" in possibilities[i + 1] and "う" in possibilities[i + 2] and i + 2 < len(possibilities):
             possibilities[i] += ["にゅう"] + list(find_kanji_for_kana("にゅう"))
+            possibilities[i] = list(set(possibilities[i]))
+            possibilities[i + 1] += [""]
+            possibilities[i + 2] += [""]
+        if "り" in p and "ょ" in possibilities[i + 1] and "く" in possibilities[i + 2] and i + 2 < len(possibilities):
+            possibilities[i] += ["りょく"] + list(find_kanji_for_kana("りょく"))
             possibilities[i] = list(set(possibilities[i]))
             possibilities[i + 1] += [""]
             possibilities[i + 2] += [""]
@@ -247,7 +256,7 @@ def main():
     # test_sentence = "きびしすぎると、かんがえがうまくいかないこともある"
     # test_sentence = "おまつりはたのしかったです"
     # test_sentence = "はいってもいいんじゃないの？"
-    test_sentence = "おおきなはなをみつけた"
+    test_sentence = "ここににゅうりょくして"
 
     morphemes = tokenizer.tokenize(test_sentence, mode=SplitMode.C)
     print(f"Morphemes for the sentence {test_sentence}: {morphemes}")
