@@ -29,6 +29,7 @@ posToCheck = [
     "接尾辞",
     "副詞",
     "助動詞",
+    "連体詞",
 ]
 
 
@@ -186,10 +187,11 @@ def addExtraOptions(morphemes, possibilities):
             possibilities[i] += ["どう"] + list(find_kanji_for_kana("どう"))
             possibilities[i] = list(set(possibilities[i]))
             possibilities[i + 1] += [""]
-        if "ど" in p and "う" in possibilities[i + 1] and i + 1 < len(possibilities):
-            possibilities[i] += ["どう"] + list(find_kanji_for_kana("どう"))
+        if "に" in p and "ゅ" in possibilities[i + 1] and "う" in possibilities[i + 2] and i + 2 < len(possibilities):
+            possibilities[i] += ["にゅう"] + list(find_kanji_for_kana("にゅう"))
             possibilities[i] = list(set(possibilities[i]))
             possibilities[i + 1] += [""]
+            possibilities[i + 2] += [""]
     return possibilities
 
 
@@ -242,9 +244,10 @@ def main():
     # test_sentence = "すいせいをみた！"
     # test_sentence = "そこにいくなら、はやくいったほうがいいよ"
     # test_sentence = "いいにくいことをいうのはむずかしい"
-    test_sentence = "きびしすぎると、かんがえがうまくいかないこともある"
-    test_sentence = "おまつりはたのしかったです"
-    test_sentence = "はいってもいいんじゃないの？"
+    # test_sentence = "きびしすぎると、かんがえがうまくいかないこともある"
+    # test_sentence = "おまつりはたのしかったです"
+    # test_sentence = "はいってもいいんじゃないの？"
+    test_sentence = "おおきなはなをみつけた"
 
     morphemes = tokenizer.tokenize(test_sentence, mode=SplitMode.C)
     print(f"Morphemes for the sentence {test_sentence}: {morphemes}")
