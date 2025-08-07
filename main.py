@@ -257,14 +257,16 @@ def main():
     test_sentence = "おおそうじがにほんてきなでんとうです。"
     # test_sentence = "ことしのなつはとてもあつい"
     # test_sentence = "えきのまえにあるおみせで、あたらしいふくをかいました。"
-    # test_sentence = "だいがくせいのときに、れきしにせんこうしました。"
+    test_sentence = "だいがくせいのときに、れきしにせんこうしました。"
     # test_sentence = "すいせいをみた！"
     # test_sentence = "そこにいくなら、はやくいったほうがいいよ"
     # test_sentence = "いいにくいことをいうのはむずかしい"
     # test_sentence = "きびしすぎると、かんがえがうまくいかないこともある"
     # test_sentence = "おまつりはたのしかったです"
     # test_sentence = "はいってもいいんじゃないの？"
-    test_sentence = "ここににゅうりょくして"
+    # test_sentence = "ここににゅうりょくして"
+    test_sentence = "いちばんすきなかしゅはだれですか"
+    test_sentence = "いもうとはうたうのがじょうずです"
 
     morphemes = tokenizer.tokenize(test_sentence, mode=SplitMode.C)
     print(f"Morphemes for the sentence {test_sentence}: {morphemes}")
