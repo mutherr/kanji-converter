@@ -24,10 +24,6 @@ posToCheck = [
 ]
 
 
-def isVerbDictForm(verb):
-    return verb.endswith(("う", "く", "す", "つ", "ぬ", "む", "ゆ", "る", "ぐ"))
-
-
 def getPossibleKanji(morphemes):
     possibilities = []
     for c in morphemes:
