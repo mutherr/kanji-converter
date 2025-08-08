@@ -151,19 +151,24 @@ source = { virtual = "." }
 dependencies = [
     { name = "eel" },
     { name = "kenlm" },
-    { name = "ruff" },
     { name = "sudachidict-core" },
     { name = "sudachipy" },
+]
+
+[package.optional-dependencies]
+dev = [
+    { name = "ruff" },
 ]
 
 [package.metadata]
 requires-dist = [
     { name = "eel", specifier = ">=0.18.2" },
     { name = "kenlm", specifier = ">=0.3.0" },
-    { name = "ruff", specifier = ">=0.12.7" },
+    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.12.7" },
     { name = "sudachidict-core", specifier = ">=20250515" },
     { name = "sudachipy", specifier = ">=0.6.10" },
 ]
+provides-extras = ["dev"]
 
 [[package]]
 name = "kenlm"
