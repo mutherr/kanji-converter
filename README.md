@@ -8,7 +8,7 @@ Candidate kanji for each morpheme are taken from the JMDict dictionary by colelc
 
 Importantly, this gives us back the kanji forms in their dictionary for (ex: 言う rather than 言っ as we need to reconstuct the example sentence), so basic rule-based reinflection is performed for verbs and い adjectives.
 
-These possibilities are then formed into a reporesentation of all possible kanji or hiragana forms called a lattice, where the i-th entry stores all the ways the i-th morpheme could be represented. For the example sentence, this is:
+These possibilities are then formed into a representation of all possible kanji or hiragana forms called a lattice, where the i-th entry stores all the ways the i-th morpheme could be represented. For the example sentence, this is:
 
 ```
 [['もう'],
@@ -42,7 +42,7 @@ Install the `uv` package manager, then run `uv sync`.
 
 ## A note on installation with Homebrew python
 
-When installing via `uv`, you may need to set the paths manually if using Homebrew python.
+When installing via `uv`, you may need to set the paths manually if using python installed through Homebrew.
 This will often manifest as the program reporting a missing `Python.h`file while building.
 
 ```

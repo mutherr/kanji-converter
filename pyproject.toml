@@ -7,7 +7,9 @@ requires-python = ">=3.12"
 dependencies = [
     "eel>=0.18.2",
     "kenlm>=0.3.0",
-    "ruff>=0.12.7",
-    "sudachidict-core>=20250515",
+    "mecab-python3>=1.0.10",
+    "ruff>=0.14.0",
+    "sudachidict-core>=20250825",
     "sudachipy>=0.6.10",
+    "unidic-lite>=1.0.8",
 ]
