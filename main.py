@@ -1,21 +1,12 @@
 from sudachipy import Dictionary, SplitMode
-import xml.etree.ElementTree as ET
 import kenlm
 import heapq
 
-from util.jpUtil import hiragana_to_katakana
+from util.kanji import find_kanji_for_kana
 
 # todo: clean up this code, it is a mess
 
 tokenizer = Dictionary().create()
-
-JMDICT_PATH = "dict/JMdict_e.xml"
-tree = ET.parse(JMDICT_PATH)
-root = tree.getroot()
-
-KANJIDIC_PATH = "dict/kanjidic2.xml"
-kanjidic_tree = ET.parse(KANJIDIC_PATH)
-kanjidic_root = kanjidic_tree.getroot()
 
 posToCheck = [
     "普通名詞",
@@ -29,41 +20,8 @@ posToCheck = [
     "接尾辞",
     "副詞",
     "助動詞",
+    "連体詞",
 ]
-
-
-def find_kanji_for_kana(reading):
-    results = set()
-    # results = find_kanji_for_kana_in_kanjidic(hiragana_to_katakana(reading))
-    for entry in root.findall("entry"):
-        readings = [
-            r.text for r_ele in entry.findall("r_ele") for r in r_ele.findall("reb")
-        ]
-        if reading in readings:
-            kanjis = [
-                k.text for k_ele in entry.findall("k_ele") for k in k_ele.findall("keb")
-            ]
-            if kanjis:
-                results.update(kanjis)
-    return results
-
-
-def find_kanji_for_kana_in_kanjidic(reading, reading_types=("ja_on", "ja_kun")):
-    results = set()
-    for char in kanjidic_root.findall("character"):
-        kanji = char.findtext("literal")
-        rm = char.find("reading_meaning")
-        if rm is not None:
-            for group in rm.findall("rmgroup"):
-                for rd in group.findall("reading"):
-                    rtype = rd.attrib.get("r_type")
-                    if rtype in reading_types and rd.text == reading:
-                        results.add(kanji)
-    return results
-
-
-def isVerbDictForm(verb):
-    return verb.endswith(("う", "く", "す", "つ", "ぬ", "む", "ゆ", "る", "ぐ"))
 
 
 def getPossibleKanji(morphemes):
@@ -77,7 +35,7 @@ def getPossibleKanji(morphemes):
             if surface_form != c.dictionary_form():
                 kanji_forms = kanji_forms.union(find_kanji_for_kana(c.surface()))
 
-            possible_forms = []
+            possible_forms = [surface_form]
             for form in kanji_forms:
                 # perform basic reinflection for verbs. I am so glad the verbs
                 # in this language are regular
@@ -97,6 +55,8 @@ def getPossibleKanji(morphemes):
                         possible_forms.append(form[:-1] + "い")
                     elif surface_form.endswith("き") and form.endswith("く"):
                         possible_forms.append(form[:-1] + "き")
+                    elif surface_form.endswith("か") and form.endswith("く"):
+                        possible_forms.append(form[:-1] + "か")
                     elif surface_form.endswith("り") and form.endswith("る"):
                         possible_forms.append(form[:-1] + "り")
                     elif surface_form.endswith("し") and form.endswith("す"):
@@ -125,6 +85,10 @@ def getPossibleKanji(morphemes):
                         possible_forms.append(form)
                     elif surface_form.endswith("く"):
                         possible_forms.append(form[:-1] + "く")
+                    elif surface_form.endswith("し") and form.endswith("い"):
+                        possible_forms.append(form[:-1])
+                    elif surface_form.endswith("かっ") and form.endswith("い"):
+                        possible_forms.append(form[:-1] + "かっ")
                     else:
                         print(
                             "Unsure how to reinflect surface form ",
@@ -140,11 +104,11 @@ def getPossibleKanji(morphemes):
                     possible_forms.append(form)
 
             possible_forms = sorted(list(set(possible_forms)))
-            if c.surface() not in possible_forms:
-                possible_forms.append(c.surface())
             print("Inflected forms:", possible_forms)
+            print(len(possible_forms), "possible forms for", c.surface())
+            
 
-            print("Surface form:", c.surface(), c.dictionary_form())
+            print("Surface form:", surface_form, c.dictionary_form())
             print("Possible forms:", possible_forms)
             print("Part of speech:", c.part_of_speech())
             possibilities.append(possible_forms)
@@ -162,7 +126,7 @@ def addExtraOptions(morphemes, possibilities):
     This can be used to smooth over issues with the parser.
     """
     for i, p in enumerate(possibilities):
-        # if we find two adjavent "お" options, we can add an extra "大" option to the second and
+        # if we find two adjacent "お" options, we can add an extra "大" option to the second and
         # let the first be skipped
         # this is a hack to deal with the fact that the parser does not handle "おお" correctly
         # in some cases, like "おおそうじ"
@@ -180,6 +144,28 @@ def addExtraOptions(morphemes, possibilities):
             possibilities[i] += ["どう"] + list(find_kanji_for_kana("どう"))
             possibilities[i] = list(set(possibilities[i]))
             possibilities[i + 1] += [""]
+        # multi-character syllables like "にゅう" are sometimes split into "に", "ゅ", and "う"
+        # we can fix this by adding "にゅう" to the first syllable and letting the next two be skipped
+        # this is a hack to deal with the fact that the parser does not handle "にゅう" correctly
+        # in some cases, like "入力" (にゅうりょく) or "入院" (にゅういん)
+        if "に" in p and "ゅ" in possibilities[i + 1] and "う" in possibilities[i + 2] and i + 2 < len(possibilities):
+            print("Found にゅう hack")
+            possibilities[i] += ["にゅう"] + list(find_kanji_for_kana("にゅう")+["入"])
+            possibilities[i] = list(set(possibilities[i]))
+            possibilities[i + 1] += [""]
+            possibilities[i + 2] += [""]
+        if "り" in p and "ょ" in possibilities[i + 1] and "く" in possibilities[i + 2] and i + 2 < len(possibilities):
+            possibilities[i] += ["りょく"] + list(find_kanji_for_kana("りょく"))
+            possibilities[i] = list(set(possibilities[i]))
+            possibilities[i + 1] += [""]
+            possibilities[i + 2] += [""]
+        #the real fix for this is to find a better kanji dictionary. JMdict is missing a lot of onyomi,
+        # and kanjidic seems to overwhlem the lm and make it produce unexpected results
+        # this is a hack to deal with the fact that the parser does not handle "にゅう" correctly
+        # in some cases, like "入力" (にゅうりょく) or "入院" (にゅういん)
+        if "にゅう" in p:
+            possibilities[i] += list(find_kanji_for_kana("にゅう"))+["入"]
+            possibilities[i] = list(set(possibilities[i]))
     return possibilities
 
 
@@ -201,10 +187,9 @@ def top_n_sentences(token_options, model, N=5, beam_width=10):
                 # KenLM: score one sentence so far
                 sentence = " ".join(new_seq)
                 score = model.score(sentence, bos=True, eos=True)
-                new_beam.append((-score, new_seq))  # negative for min-heap
+                new_beam.append((-score, new_seq))
         # Keep top beam_width
         beam = heapq.nsmallest(beam_width, new_beam)
-    # At end, return top N results, sorted best score first
     return [(-neg_score, seq) for neg_score, seq in heapq.nsmallest(N, beam)]
 
 
@@ -226,13 +211,19 @@ def main():
     # test_sentence = "あめがふっているので、かさをもっていきます"
     # test_sentence = "きゅうにあめがふりだしたので、かさをもっていなかったわたしはずぶぬれになってしまった。"
     # test_sentence = "どうぞよろしくおねがいいたします。"
-    # test_sentence = "おおそうじがにほんてきなでんとうです。"
+    test_sentence = "おおそうじがにほんてきなでんとうです。"
     # test_sentence = "ことしのなつはとてもあつい"
     # test_sentence = "えきのまえにあるおみせで、あたらしいふくをかいました。"
-    # test_sentence = "だいがくせいのときに、れきしにせんこうしました。"
+    test_sentence = "だいがくせいのときに、れきしにせんこうしました。"
     # test_sentence = "すいせいをみた！"
     # test_sentence = "そこにいくなら、はやくいったほうがいいよ"
     # test_sentence = "いいにくいことをいうのはむずかしい"
+    # test_sentence = "きびしすぎると、かんがえがうまくいかないこともある"
+    # test_sentence = "おまつりはたのしかったです"
+    # test_sentence = "はいってもいいんじゃないの？"
+    # test_sentence = "ここににゅうりょくして"
+    test_sentence = "いちばんすきなかしゅはだれですか"
+    test_sentence = "いもうとはうたうのがじょうずです"
 
     morphemes = tokenizer.tokenize(test_sentence, mode=SplitMode.C)
     print(f"Morphemes for the sentence {test_sentence}: {morphemes}")

@@ -10,3 +10,7 @@ def katakana_to_hiragana(katakana):
     return "".join(
         chr(ord(char) - 96) if "ァ" <= char <= "ヶ" else char for char in katakana
     )
+
+
+def isVerbDictForm(verb):
+    return verb.endswith(("う", "く", "す", "つ", "ぬ", "む", "ゆ", "る", "ぐ"))

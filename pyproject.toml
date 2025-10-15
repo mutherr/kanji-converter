@@ -13,3 +13,6 @@ dependencies = [
     "sudachipy>=0.6.10",
     "unidic-lite>=1.0.8",
 ]
+
+[project.optional-dependencies]
+dev = ["ruff>=0.13.2"]

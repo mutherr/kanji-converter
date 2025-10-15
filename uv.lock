@@ -158,6 +158,11 @@ dependencies = [
     { name = "unidic-lite" },
 ]
 
+[package.optional-dependencies]
+dev = [
+    { name = "ruff" },
+]
+
 [package.metadata]
 requires-dist = [
     { name = "eel", specifier = ">=0.18.2" },
@@ -168,6 +173,7 @@ requires-dist = [
     { name = "sudachipy", specifier = ">=0.6.10" },
     { name = "unidic-lite", specifier = ">=1.0.8" },
 ]
+provides-extras = ["dev"]
 
 [[package]]
 name = "kenlm"
