@@ -24,6 +24,247 @@ posToCheck = [
 ]
 
 
+def reinflect_verb(surface_form, dictionary_form):
+    """
+    Comprehensive verb reinflection to handle various conjugated forms.
+    Returns the reinflected form or None if no pattern matches.
+    """
+    # Handle compound する verbs first
+    if dictionary_form.endswith("する"):
+        stem = dictionary_form[:-2]  # Remove する
+        if surface_form.endswith("し"):
+            return stem + "し"
+        elif surface_form.endswith("して"):
+            return stem + "して"
+        elif surface_form.endswith("した"):
+            return stem + "した"
+        elif surface_form.endswith("すれ"):
+            return stem + "すれ"
+        elif surface_form.endswith("しよう"):
+            return stem + "しよう"
+        elif surface_form.endswith("さ"):
+            return stem + "さ"
+
+    # Handle irregular verbs
+    if dictionary_form in ["する", "為る"]:
+        if surface_form.endswith("し"):
+            return dictionary_form[:-2] + "し"
+        elif surface_form.endswith("して"):
+            return dictionary_form[:-2] + "して"
+        elif surface_form.endswith("した"):
+            return dictionary_form[:-2] + "した"
+        elif surface_form.endswith("すれ"):
+            return dictionary_form[:-2] + "すれ"
+        elif surface_form.endswith("しよう"):
+            return dictionary_form[:-2] + "しよう"
+        elif surface_form == "さ":
+            return dictionary_form[:-2] + "さ"
+
+    if dictionary_form in ["くる", "来る"]:
+        if surface_form in ["き", "来"]:
+            return dictionary_form[:-2] + "き"
+        elif surface_form.endswith("きて"):
+            return dictionary_form[:-2] + "きて"
+        elif surface_form.endswith("きた"):
+            return dictionary_form[:-2] + "きた"
+        elif surface_form.endswith("くれ"):
+            return dictionary_form[:-2] + "くれ"
+        elif surface_form.endswith("こよう"):
+            return dictionary_form[:-2] + "こよう"
+
+    # Handle special case of いく -> いって (not いいて)
+    if dictionary_form.endswith("いく") and surface_form.endswith("いって"):
+        return dictionary_form[:-2] + "いって"
+    elif dictionary_form.endswith("いく") and surface_form.endswith("いった"):
+        return dictionary_form[:-2] + "いった"
+
+    # Ichidan verbs (る-verbs) - only match if they follow ichidan patterns exactly
+    if dictionary_form.endswith("る"):
+        stem = dictionary_form[:-1]
+
+        # Check if this looks like an ichidan verb by checking if surface form matches ichidan patterns
+        # Ichidan verbs have simple stem + ending patterns, not complex sound changes like godan
+        if surface_form == stem:  # stem form (masu-stem)
+            return stem
+        elif surface_form == stem + "て":  # exact match for te-form
+            return stem + "て"
+        elif surface_form == stem + "た":  # exact match for past (not sound-changed forms like った)
+            return stem + "た"
+        elif surface_form == stem + "れ":  # exact match for imperative
+            return stem + "れ"
+        elif surface_form == stem + "よう":  # exact match for volitional
+            return stem + "よう"
+        elif surface_form == stem + "ば":  # exact match for conditional
+            return stem + "ば"
+        elif surface_form == stem + "ない":  # exact match for negative
+            return stem + "ない"
+        elif surface_form == stem + "られる":  # passive/potential
+            return stem + "られる"
+        elif surface_form == stem + "させる":  # causative
+            return stem + "させる"
+        elif surface_form == stem + "ている":  # progressive
+            return stem + "ている"
+        elif surface_form == stem + "てある":  # state
+            return stem + "てある"
+        elif surface_form == stem + "ておく":  # preparation
+            return stem + "ておく"
+
+    # Godan verbs (う-verbs) - comprehensive patterns with correct sound changes
+    godan_endings = {
+        "う": {"i": "い", "a": "わ", "e": "え", "o": "お", "past": "った", "te": "って"},
+        "く": {"i": "き", "a": "か", "e": "け", "o": "こ", "past": "いた", "te": "いて"},
+        "ぐ": {"i": "ぎ", "a": "が", "e": "げ", "o": "ご", "past": "いだ", "te": "いで"},
+        "す": {"i": "し", "a": "さ", "e": "せ", "o": "そ", "past": "した", "te": "して"},
+        "つ": {"i": "ち", "a": "た", "e": "て", "o": "と", "past": "った", "te": "って"},
+        "ぬ": {"i": "に", "a": "な", "e": "ね", "o": "の", "past": "んだ", "te": "んで"},
+        "ぶ": {"i": "び", "a": "ば", "e": "べ", "o": "ぼ", "past": "んだ", "te": "んで"},
+        "む": {"i": "み", "a": "ま", "e": "め", "o": "も", "past": "んだ", "te": "んで"},
+        "る": {"i": "り", "a": "ら", "e": "れ", "o": "ろ", "past": "った", "te": "って"}
+    }
+
+    for ending, forms in godan_endings.items():
+        if dictionary_form.endswith(ending):
+            stem = dictionary_form[:-1]
+
+            # Masu-stem (i-form)
+            if surface_form == stem + forms["i"]:
+                return stem + forms["i"]
+            # Past tense patterns with correct sound changes
+            elif surface_form.endswith(forms["past"]):
+                return stem + forms["past"]
+            elif surface_form.endswith(forms["te"]):
+                return stem + forms["te"]
+            # Conditional
+            elif surface_form.endswith(forms["e"] + "ば"):
+                return stem + forms["e"] + "ば"
+            # Volitional
+            elif surface_form.endswith(forms["o"] + "う"):
+                return stem + forms["o"] + "う"
+            # Negative
+            elif surface_form.endswith(forms["a"] + "ない"):
+                return stem + forms["a"] + "ない"
+            # Passive
+            elif surface_form.endswith(forms["a"] + "れる"):
+                return stem + forms["a"] + "れる"
+            # Causative
+            elif surface_form.endswith(forms["a"] + "せる"):
+                return stem + forms["a"] + "せる"
+            # Imperative
+            elif surface_form.endswith(forms["e"]):
+                return stem + forms["e"]
+            # Various te-form combinations
+            elif surface_form.endswith(forms["te"] + "いる"):
+                return stem + forms["te"] + "いる"
+            elif surface_form.endswith(forms["te"] + "ある"):
+                return stem + forms["te"] + "ある"
+            elif surface_form.endswith(forms["te"] + "おく"):
+                return stem + forms["te"] + "おく"
+
+    # Handle ください pattern (should come after other patterns to avoid conflicts)
+    if surface_form.endswith("ください"):
+        # Return the full surface form for ください patterns
+        return surface_form
+
+    # Handle っ ending (sokuon)
+    if surface_form.endswith("っ"):
+        return dictionary_form[:-1] + "っ"
+
+    return None
+
+
+def reinflect_i_adjective(surface_form, dictionary_form):
+    """
+    Comprehensive i-adjective reinflection.
+    """
+    if not dictionary_form.endswith("い"):
+        return None
+
+    stem = dictionary_form[:-1]
+
+    # Handle irregular いい/よい
+    if dictionary_form in ["いい", "よい", "良い"]:
+        if surface_form.endswith("くなかった"):  # Check longer patterns first
+            return "よくなかった"
+        elif surface_form.endswith("かったら"):
+            return "よかったら"
+        elif surface_form.endswith("かった"):
+            return "よかった"
+        elif surface_form.endswith("ければ"):
+            return "よければ"
+        elif surface_form.endswith("く"):
+            return "よく"
+
+    # Regular i-adjective patterns - check specific patterns first, then general ones
+    if surface_form == "ない":
+        return dictionary_form
+    elif surface_form.endswith("くなかった"):  # Most specific first
+        return stem + "くなかった"
+    elif surface_form.endswith("くない"):
+        return stem + "くない"
+    elif surface_form.endswith("かったら"):
+        return stem + "かったら"
+    elif surface_form.endswith("かった"):
+        return stem + "かった"
+    elif surface_form.endswith("ければ"):
+        return stem + "ければ"
+    elif surface_form.endswith("かっ") and dictionary_form.endswith("い"):
+        return stem + "かっ"
+    elif surface_form.endswith("く"):
+        return stem + "く"
+    elif surface_form.endswith("し") and dictionary_form.endswith("い"):
+        # Handle し-form properly for words ending in しい
+        if dictionary_form.endswith("しい") and len(stem) >= 2:
+            return stem[:-1] + "し"  # Remove the し from stem and add し
+        else:
+            return stem + "し"
+    elif surface_form.endswith("い") and dictionary_form.endswith("い"):
+        # Basic form - check last since it's most general
+        return dictionary_form
+
+    return None
+
+
+def reinflect_na_adjective(surface_form, dictionary_form):
+    """
+    Comprehensive na-adjective reinflection.
+    """
+    # Basic form
+    if surface_form == dictionary_form:
+        return dictionary_form
+
+    # Past tense
+    if surface_form.endswith("だった"):
+        return dictionary_form + "だった"
+    elif surface_form.endswith("でした"):
+        return dictionary_form + "でした"
+
+    # Te-form
+    if surface_form.endswith("で"):
+        return dictionary_form + "で"
+
+    # Conditional
+    if surface_form.endswith("なら"):
+        return dictionary_form + "なら"
+    elif surface_form.endswith("だったら"):
+        return dictionary_form + "だったら"
+
+    # Negative
+    if surface_form.endswith("じゃない"):
+        return dictionary_form + "じゃない"
+    elif surface_form.endswith("ではない"):
+        return dictionary_form + "ではない"
+    elif surface_form.endswith("じゃなかった"):
+        return dictionary_form + "じゃなかった"
+    elif surface_form.endswith("ではなかった"):
+        return dictionary_form + "ではなかった"
+
+    # Adverbial form
+    if surface_form.endswith("に"):
+        return dictionary_form + "に"
+
+    return dictionary_form
+
+
 def getPossibleKanji(morphemes):
     possibilities = []
     for c in morphemes:
@@ -37,58 +278,26 @@ def getPossibleKanji(morphemes):
 
             possible_forms = [surface_form]
             for form in kanji_forms:
-                # perform basic reinflection for verbs. I am so glad the verbs
-                # in this language are regular
+                # Comprehensive verb reinflection
                 if "動詞" in c.part_of_speech():
-                    if len(form) < len(surface_form) and len(form) > 1:
-                        print(
-                            "Unsure how to reinflect surface form",
-                            surface_form,
-                            "given",
-                            form,
-                        )
-                    if surface_form.endswith("ん") and form.endswith("む"):
-                        possible_forms.append(form[:-1] + "ん")
-                    elif surface_form.endswith("い") and (
-                        form.endswith("ぐ") or form.endswith("く")
-                    ):
-                        possible_forms.append(form[:-1] + "い")
-                    elif surface_form.endswith("き") and form.endswith("く"):
-                        possible_forms.append(form[:-1] + "き")
-                    elif surface_form.endswith("か") and form.endswith("く"):
-                        possible_forms.append(form[:-1] + "か")
-                    elif surface_form.endswith("り") and form.endswith("る"):
-                        possible_forms.append(form[:-1] + "り")
-                    elif surface_form.endswith("し") and form.endswith("す"):
-                        possible_forms.append(form[:-1] + "し")
-                    elif surface_form.endswith("さい"):
-                        possible_forms.append(form[:-2] + "さい")
-                    elif surface_form.endswith("っ"):
-                        possible_forms.append(form[:-1] + "っ")
-                    elif surface_form.endswith("え"):
-                        possible_forms.append(form[:-1])
-                    elif surface_form.endswith("れ") and form.endswith("る"):
-                        possible_forms.append(form[:-1])
-                    elif surface_form == "し":
-                        possible_forms.append("し")
-                    elif surface_form.endswith("け") and form.endswith("る"):
-                        possible_forms.append(form[:-1])
-                    elif surface_form.endswith("い") and form.endswith("う"):
-                        possible_forms.append(form[:-1] + "い")
+                    inflected_form = reinflect_verb(surface_form, form)
+                    if inflected_form:
+                        possible_forms.append(inflected_form)
                     else:
+                        if len(form) < len(surface_form) and len(form) > 1:
+                            print(
+                                "Unsure how to reinflect surface form",
+                                surface_form,
+                                "given",
+                                form,
+                            )
+                        # Fallback to simple truncation
                         possible_forms.append(form[: len(surface_form)])
                 # い-Adjectives
                 elif "形容詞" in c.part_of_speech():
-                    if surface_form == "ない":
-                        possible_forms.append(form)
-                    if surface_form.endswith("い") and form.endswith("い"):
-                        possible_forms.append(form)
-                    elif surface_form.endswith("く"):
-                        possible_forms.append(form[:-1] + "く")
-                    elif surface_form.endswith("し") and form.endswith("い"):
-                        possible_forms.append(form[:-1])
-                    elif surface_form.endswith("かっ") and form.endswith("い"):
-                        possible_forms.append(form[:-1] + "かっ")
+                    inflected_form = reinflect_i_adjective(surface_form, form)
+                    if inflected_form:
+                        possible_forms.append(inflected_form)
                     else:
                         print(
                             "Unsure how to reinflect surface form ",
@@ -96,10 +305,15 @@ def getPossibleKanji(morphemes):
                             " given ",
                             form,
                         )
+                        # Fallback
+                        possible_forms.append(form)
                 # な-Adjectives
                 elif "形状詞" in c.part_of_speech():
-                    print(possible_forms)
-                    possible_forms.append(form)
+                    inflected_form = reinflect_na_adjective(surface_form, form)
+                    if inflected_form:
+                        possible_forms.append(inflected_form)
+                    else:
+                        possible_forms.append(form)
                 else:
                     possible_forms.append(form)
 
@@ -205,8 +419,8 @@ def main():
     # test_sentence = "もういちどいってください"
     # test_sentence = "おいしゃさんにきいてください"
     # test_sentence = "あたしにはなしかけないでください"
-    # test_sentence = "あしたはさむくなるから、あたたかいふくをきてください"
-    test_sentence = "わたしのしゅみはおんがくをきくことです"
+    test_sentence = "あしたはさむくなるから、あたたかいふくをきてください"
+    # test_sentence = "わたしのしゅみはおんがくをきくことです"
     # test_sentence = "あるきながらはなしまんせんか"
     # test_sentence = "あめがふっているので、かさをもっていきます"
     # test_sentence = "きゅうにあめがふりだしたので、かさをもっていなかったわたしはずぶぬれになってしまった。"
@@ -221,7 +435,6 @@ def main():
     # test_sentence = "きびしすぎると、かんがえがうまくいかないこともある"
     # test_sentence = "おまつりはたのしかったです"
     # test_sentence = "はいってもいいんじゃないの？"
-    # test_sentence = "ここににゅうりょくして"
     # test_sentence = "いちばんすきなかしゅはだれですか"
     # test_sentence = "いもうとはうたうのがじょうずです"
 
