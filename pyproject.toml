@@ -15,4 +15,10 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["ruff>=0.13.2"]
+dev = ["ruff>=0.13.2", "pytest>=6.0.0"]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.13.2",
+    "pytest>=6.0.0",
+]
